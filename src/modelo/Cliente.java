@@ -75,4 +75,5 @@ public class Cliente extends Usuario {
             + ", puntos=" + puntosFidelidad
             + ", bono=" + (bonoDescuento > 0 ? (int)(bonoDescuento*100)+"%" : "ninguno") + "]";
     }
+
 }
