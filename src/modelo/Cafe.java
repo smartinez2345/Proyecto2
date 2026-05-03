@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Cafe implements java.io.Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     private List<Usuario> usuarios;
     private List<Cliente> clientes;
     private List<Empleado> empleados;
@@ -17,6 +17,7 @@ public class Cafe implements java.io.Serializable {
     private List<Venta> ventas;
     private List<SolicitudCambioTurno> solicitudes;
     private List<Mesa> mesas;
+    private List<Torneo> torneos;          // NUEVO
     private Administrador administrador;
     private int capacidadMaxima;
 
@@ -32,22 +33,21 @@ public class Cafe implements java.io.Serializable {
         this.ventas = new ArrayList<>();
         this.solicitudes = new ArrayList<>();
         this.mesas = new ArrayList<>();
+        this.torneos = new ArrayList<>();
     }
 
-    public void agregarCliente(Cliente c) { clientes.add(c); usuarios.add(c); }
-    public void agregarEmpleado(Empleado e) { empleados.add(e); usuarios.add(e); }
+    // ─── Usuarios ─────────────────────────────────────────────────────
+    public void agregarCliente(Cliente c)    { clientes.add(c); usuarios.add(c); }
+    public void agregarEmpleado(Empleado e)  { empleados.add(e); usuarios.add(e); }
     public void setAdministrador(Administrador a) { this.administrador = a; usuarios.add(a); }
-    public Administrador getAdministrador() { return administrador; }
+    public Administrador getAdministrador()  { return administrador; }
 
-    public void agregarMesa(Mesa m) { mesas.add(m); }
-    
-    public void liberarMesa(Mesa m) {
-        m.liberar();
-        mesas.remove(m);
-    }
-    
-    public List<Mesa> getMesas() { return mesas; }
+    // ─── Mesas ────────────────────────────────────────────────────────
+    public void agregarMesa(Mesa m)          { mesas.add(m); }
+    public void liberarMesa(Mesa m)          { m.liberar(); mesas.remove(m); }
+    public List<Mesa> getMesas()             { return mesas; }
 
+    // ─── Inventario ───────────────────────────────────────────────────
     public void agregarInventarioJuego(InventarioJuegos inv) {
         inventariosJuegos.add(inv);
         if (!juegos.contains(inv.getJuego())) juegos.add(inv.getJuego());
@@ -58,51 +58,61 @@ public class Cafe implements java.io.Serializable {
     }
 
     public InventarioJuegos buscarInventarioJuego(Juego j) {
-        for (InventarioJuegos inv : inventariosJuegos) {
+        for (InventarioJuegos inv : inventariosJuegos)
             if (inv.getJuego().equals(j)) return inv;
-        }
         return null;
     }
 
     public InventarioCafeteria buscarInventarioCafeteria(ProductoCafeteria p) {
-        for (InventarioCafeteria inv : inventariosCafeteria) {
+        for (InventarioCafeteria inv : inventariosCafeteria)
             if (inv.getProducto().equals(p)) return inv;
-        }
         return null;
     }
 
+    // ─── Préstamos y ventas ───────────────────────────────────────────
     public void registrarPrestamo(Prestamo p) { prestamos.add(p); }
 
     public void registrarVenta(Venta v) {
         ventas.add(v);
-        if (v.getCliente() != null) {
+        if (v.getCliente() != null)
             v.getCliente().agregarPuntos(v.calcularPuntosFidelidad());
-        }
     }
 
     public void agregarSolicitud(SolicitudCambioTurno s) { solicitudes.add(s); }
 
+    // ─── Torneos ──────────────────────────────────────────────────────
+    public void agregarTorneo(Torneo t)  { torneos.add(t); }
+    public List<Torneo> getTorneos()     { return torneos; }
+
+    public Torneo buscarTorneoPorNombre(String nombre) {
+        for (Torneo t : torneos)
+            if (t.getNombre().equalsIgnoreCase(nombre)) return t;
+        return null;
+    }
+
+    // ─── Capacidad ────────────────────────────────────────────────────
     public boolean hayCapacidad(int personasNuevas) {
         int totalActual = 0;
         for (Mesa m : mesas) totalActual += m.getCantidadPersonas();
         return (totalActual + personasNuevas) <= capacidadMaxima;
     }
 
-    public List<Cliente> getClientes() { return clientes; }
-    public List<Empleado> getEmpleados() { return empleados; }
-    public List<Juego> getJuegos() { return juegos; }
-    public List<InventarioJuegos> getInventariosJuegos() { return inventariosJuegos; }
-    public List<InventarioCafeteria> getInventariosCafeteria() { return inventariosCafeteria; }
-    public List<Prestamo> getPrestamos() { return prestamos; }
-    public List<Venta> getVentas() { return ventas; }
-    public List<SolicitudCambioTurno> getSolicitudes() { return solicitudes; }
-    public int getCapacidadMaxima() { return capacidadMaxima; }
+    // ─── Getters generales ────────────────────────────────────────────
+    public List<Cliente> getClientes()                          { return clientes; }
+    public List<Empleado> getEmpleados()                        { return empleados; }
+    public List<Juego> getJuegos()                              { return juegos; }
+    public List<InventarioJuegos> getInventariosJuegos()        { return inventariosJuegos; }
+    public List<InventarioCafeteria> getInventariosCafeteria()  { return inventariosCafeteria; }
+    public List<Prestamo> getPrestamos()                        { return prestamos; }
+    public List<Venta> getVentas()                              { return ventas; }
+    public List<SolicitudCambioTurno> getSolicitudes()          { return solicitudes; }
+    public int getCapacidadMaxima()                             { return capacidadMaxima; }
 
-    // Métodos de persistencia
+    // ─── Persistencia ─────────────────────────────────────────────────
     public void guardarEstado(String rutaArchivo) {
         try {
             persistencia.Persistencia.guardar(this, rutaArchivo);
-            System.out.println("Estado guardado exitosamente en " + rutaArchivo);
+            System.out.println("Estado guardado en " + rutaArchivo);
         } catch (IOException e) {
             System.err.println("Error al guardar: " + e.getMessage());
         }
@@ -121,7 +131,9 @@ public class Cafe implements java.io.Serializable {
 
     @Override
     public String toString() {
-        return "Cafe[clientes=" + clientes.size() + ", empleados=" + empleados.size()
+        return "Cafe[clientes=" + clientes.size()
+            + ", empleados=" + empleados.size()
+            + ", torneos=" + torneos.size()
             + ", capacidad=" + capacidadMaxima + "]";
     }
 }
