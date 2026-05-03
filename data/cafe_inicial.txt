@@ -1,0 +1,56 @@
+===== ESTADO DEL BOARD GAME CAFE =====
+Fecha de exportación: 2026-04-19 21:32:32
+Capacidad máxima: 30
+
+--- ADMINISTRADOR ---
+Login: admin
+
+--- CLIENTES (3) ---
+Login: cliente1 | Puntos: 0 | Juegos favoritos: 0
+Login: cliente2 | Puntos: 118 | Juegos favoritos: 0
+Login: cliente3 | Puntos: 1785 | Juegos favoritos: 0
+
+--- EMPLEADOS (3) ---
+Login: cocinero1 | Tipo: Cocinero | Turno: Lunes-Viernes | En turno: false
+Login: mesero1 | Tipo: Mesero | Turno: Sabado-Domingo | En turno: false
+   Juegos que conoce: 1
+Login: mesero2 | Tipo: Mesero | Turno: Lunes-Viernes | En turno: false
+   Juegos que conoce: 0
+
+--- INVENTARIO DE JUEGOS (PRÉSTAMO) ---
+Juego: Catan | Categoría: TABLERO | Estado: Nuevo | Disponibles: 2 | Dificil: true | Min/Max jugadores: 3/4
+Juego: Uno | Categoría: CARTAS | Estado: Nuevo | Disponibles: 2 | Dificil: false | Min/Max jugadores: 2/10
+Juego: Twister | Categoría: ACCION | Estado: Nuevo | Disponibles: 1 | Dificil: false | Min/Max jugadores: 2/6
+Juego: Ajedrez | Categoría: TABLERO | Estado: Nuevo | Disponibles: 1 | Dificil: false | Min/Max jugadores: 2/2
+
+--- INVENTARIO DE CAFETERÍA ---
+Producto: Café Americano | Tipo: Bebida | Precio: $5000.0 | Stock: 18
+   Alcoholica: false | Caliente: true
+Producto: Cerveza Artesanal | Tipo: Bebida | Precio: $12000.0 | Stock: 10
+   Alcoholica: true | Caliente: false
+Producto: Brownie | Tipo: Pastelería | Precio: $6000.0 | Stock: 5
+   Alérgenos: [gluten]
+
+--- MESAS ACTIVAS (1) ---
+Mesa - Cliente: cliente1 | Personas: 3 | Menores5: false | Menores18: false | Bebida caliente: false | Juego acción: false
+
+--- PRÉSTAMOS (1) ---
+Préstamo - Fecha: 2026-04-19 21:32:32 | Estado: ACTIVO
+   Mesa del cliente: cliente1
+   Juegos prestados:
+      - Uno
+
+--- VENTAS (2) ---
+Venta - Fecha: 2026-04-19 21:32:32 | Tipo: CAFETERIA | Cliente: cliente2 | Total: $11800,00
+   Subtotal: $10000,00 | Impuestos: $800,00 | Propina: $1000,00
+   Detalles:
+      - Café Americano x2 ($5000.0 c/u)
+Venta - Fecha: 2026-04-19 21:32:32 | Tipo: JUEGOS | Cliente: cliente3 | Total: $178500,00
+   Subtotal: $150000,00 | Impuestos: $28500,00 | Propina: $0,00
+   Detalles:
+      - Juego x1 ($150000.0 c/u)
+
+--- SOLICITUDES DE CAMBIO (1) ---
+Solicitud - Solicitante: mesero1 | Reemplazo: mesero2 | Estado: APROBADA
+
+===== FIN DEL REPORTE =====
