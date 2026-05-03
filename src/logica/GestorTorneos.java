@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Gestor de torneos del Board Game Café.
- * Implementa todas las reglas de negocio del Proyecto #2.
+ * Implementa todos los requerimientos funcionales del Proyecto #2.
  */
 public class GestorTorneos {
 
@@ -16,27 +16,20 @@ public class GestorTorneos {
     }
 
     // ══════════════════════════════════════════════════════════════════
-    //  CREACIÓN DE TORNEOS (solo Administrador)
+    //  CREACIÓN DE TORNEOS  (solo Administrador)
     // ══════════════════════════════════════════════════════════════════
 
     /**
      * Crea un torneo AMISTOSO.
-     * Valida que haya suficientes copias del juego en el inventario de préstamos.
-     *
-     * @param nombre              nombre del torneo
-     * @param diaSemana           día de la semana (e.g. "LUNES")
-     * @param juego               juego del torneo
-     * @param numParticipantes    número total de cupos
-     * @param porcentajeDescuento porcentaje del bono (e.g. 0.15 = 15 %)
-     * @return el torneo creado, o null si no se pudo crear
+     * Valida nombre único, participantes > 0 e inventario de préstamos suficiente.
      */
     public TorneoAmistoso crearTorneoAmistoso(String nombre, String diaSemana,
                                               Juego juego, int numParticipantes,
                                               double porcentajeDescuento) {
         if (!validarCreacionTorneo(nombre, juego, numParticipantes)) return null;
 
-        TorneoAmistoso torneo = new TorneoAmistoso(nombre, diaSemana, juego,
-                                                    numParticipantes, porcentajeDescuento);
+        TorneoAmistoso torneo = new TorneoAmistoso(
+                nombre, diaSemana, juego, numParticipantes, porcentajeDescuento);
         cafe.agregarTorneo(torneo);
         System.out.println("Torneo amistoso creado: " + nombre
             + " | Día: " + diaSemana
@@ -57,9 +50,8 @@ public class GestorTorneos {
             System.out.println("ERROR: La tarifa de entrada debe ser mayor a 0.");
             return null;
         }
-
-        TorneoCompetitivo torneo = new TorneoCompetitivo(nombre, diaSemana, juego,
-                                                          numParticipantes, tarifaEntrada);
+        TorneoCompetitivo torneo = new TorneoCompetitivo(
+                nombre, diaSemana, juego, numParticipantes, tarifaEntrada);
         cafe.agregarTorneo(torneo);
         System.out.println("Torneo competitivo creado: " + nombre
             + " | Día: " + diaSemana
@@ -69,7 +61,7 @@ public class GestorTorneos {
         return torneo;
     }
 
-    /** Valida condiciones comunes antes de crear cualquier torneo. */
+    /** Valida condiciones comunes para crear cualquier torneo. */
     private boolean validarCreacionTorneo(String nombre, Juego juego, int numParticipantes) {
         if (nombre == null || nombre.isBlank()) {
             System.out.println("ERROR: El nombre del torneo no puede estar vacío.");
@@ -83,20 +75,20 @@ public class GestorTorneos {
             System.out.println("ERROR: El número de participantes debe ser mayor a 0.");
             return false;
         }
-        // El número puede ser mayor al máximo de jugadores del juego,
-        // siempre que el inventario de préstamos lo permita
+        // El número de participantes puede superar el máximo de jugadores del juego,
+        // siempre que las copias disponibles en el inventario de préstamos lo permitan.
         if (!hayCopiaSuficiente(juego, numParticipantes)) {
             System.out.println("ERROR: No hay copias suficientes en inventario de préstamos "
-                + "para soportar " + numParticipantes + " participantes del juego '"
-                + juego.getNombre() + "' (máx jugadores: " + juego.getMaxJugadores() + ").");
+                + "para un torneo de " + numParticipantes + " participantes del juego '"
+                + juego.getNombre() + "' (max jugadores por copia: "
+                + juego.getMaxJugadores() + ").");
             return false;
         }
         return true;
     }
 
     /**
-     * Verifica que el inventario de préstamos tenga suficientes copias.
-     * Se necesita ceil(numParticipantes / maxJugadores) copias.
+     * Necesitamos ceil(numParticipantes / maxJugadores) copias en inventario.
      */
     private boolean hayCopiaSuficiente(Juego juego, int numParticipantes) {
         InventarioJuegos inv = cafe.buscarInventarioJuego(juego);
@@ -110,14 +102,8 @@ public class GestorTorneos {
     // ══════════════════════════════════════════════════════════════════
 
     /**
-     * Inscribe a un cliente en un torneo.
-     * Un cliente puede inscribir hasta 3 participantes por torneo.
-     * Se verifica si es fanático del juego para asignar cupo preferencial.
-     *
-     * @param torneo   el torneo al que se quiere inscribir
-     * @param cliente  el cliente que se inscribe
-     * @param cantidad número de participantes (1-3)
-     * @return true si la inscripción fue exitosa
+     * Inscribe a un cliente en un torneo (1–3 cupos).
+     * Si es fanático del juego del torneo, usa primero cupos reservados.
      */
     public boolean inscribirCliente(Torneo torneo, Cliente cliente, int cantidad) {
         if (torneo == null || cliente == null) {
@@ -129,35 +115,34 @@ public class GestorTorneos {
             return false;
         }
         if (torneo.yaInscrito(cliente)) {
-            System.out.println("ERROR: El cliente '" + cliente.getLogin()
-                + "' ya está inscrito en el torneo '" + torneo.getNombre() + "'.");
+            System.out.println("ERROR: '" + cliente.getLogin()
+                + "' ya está inscrito en '" + torneo.getNombre() + "'.");
             return false;
         }
         if (torneo.cuposTotalesDisponibles() < cantidad) {
-            System.out.println("ERROR: No hay suficientes cupos disponibles. "
-                + "Disponibles: " + torneo.cuposTotalesDisponibles());
+            System.out.println("ERROR: No hay suficientes cupos. Disponibles: "
+                + torneo.cuposTotalesDisponibles());
             return false;
         }
 
         boolean esFanatico = cliente.esFanaticoDeJuego(torneo.getJuego());
         boolean exito = torneo.inscribir(cliente, cantidad, esFanatico);
-
         if (exito) {
             System.out.println("Cliente '" + cliente.getLogin() + "' inscrito en '"
                 + torneo.getNombre() + "' con " + cantidad + " participante(s)."
                 + (esFanatico ? " [Fanático - cupo preferencial]" : ""));
         } else {
-            System.out.println("ERROR: No se pudo inscribir al cliente en el torneo.");
+            System.out.println("ERROR: No se pudo completar la inscripción.");
         }
         return exito;
     }
 
     /**
-     * Desinscribe a un cliente del torneo (elimina todos sus cupos).
+     * Desinscribe a un cliente (elimina TODOS sus cupos).
      */
     public boolean desinscribirCliente(Torneo torneo, Cliente cliente) {
         if (!torneo.yaInscrito(cliente)) {
-            System.out.println("ERROR: El cliente '" + cliente.getLogin()
+            System.out.println("ERROR: '" + cliente.getLogin()
                 + "' no está inscrito en '" + torneo.getNombre() + "'.");
             return false;
         }
@@ -175,24 +160,20 @@ public class GestorTorneos {
 
     /**
      * Inscribe a un empleado en un torneo.
-     * El empleado NO puede estar cubriendo turno el día del torneo.
-     * En torneos competitivos, entra gratis pero sin premio en metálico.
-     *
-     * @param torneo   el torneo
-     * @param empleado el empleado
-     * @param cantidad número de participantes (1-3)
-     * @return true si la inscripción fue exitosa
+     * Reglas:
+     * - No puede estar cubriendo turno el día del torneo.
+     * - En torneos competitivos entra gratis pero sin premio en metálico.
      */
     public boolean inscribirEmpleado(Torneo torneo, Empleado empleado, int cantidad) {
         if (torneo == null || empleado == null) {
             System.out.println("ERROR: Torneo o empleado inválido.");
             return false;
         }
-        // Verificar que no esté en turno el día del torneo
+        // Turno es un día exacto: comparar directamente
         if (empleadoTieneTurnoEnDia(empleado, torneo.getDiaSemana())) {
-            System.out.println("ERROR: El empleado '" + empleado.getLogin()
+            System.out.println("ERROR: '" + empleado.getLogin()
                 + "' tiene turno el " + torneo.getDiaSemana()
-                + " y no puede inscribirse en el torneo.");
+                + " y no puede inscribirse.");
             return false;
         }
         if (cantidad < 1 || cantidad > 3) {
@@ -200,7 +181,7 @@ public class GestorTorneos {
             return false;
         }
         if (torneo.yaInscrito(empleado)) {
-            System.out.println("ERROR: El empleado '" + empleado.getLogin()
+            System.out.println("ERROR: '" + empleado.getLogin()
                 + "' ya está inscrito en '" + torneo.getNombre() + "'.");
             return false;
         }
@@ -209,24 +190,23 @@ public class GestorTorneos {
             return false;
         }
 
-        // Empleados no son fanáticos (no tienen lista de favoritos en este diseño)
         boolean exito = torneo.inscribir(empleado, cantidad, false);
         if (exito) {
             String nota = torneo.esAmistoso() ? "" : " [Gratis, sin premio en metálico]";
             System.out.println("Empleado '" + empleado.getLogin() + "' inscrito en '"
                 + torneo.getNombre() + "' con " + cantidad + " participante(s)." + nota);
         } else {
-            System.out.println("ERROR: No se pudo inscribir al empleado.");
+            System.out.println("ERROR: No se pudo completar la inscripción del empleado.");
         }
         return exito;
     }
 
     /**
-     * Desinscribe a un empleado del torneo.
+     * Desinscribe a un empleado (elimina TODOS sus cupos).
      */
     public boolean desinscribirEmpleado(Torneo torneo, Empleado empleado) {
         if (!torneo.yaInscrito(empleado)) {
-            System.out.println("ERROR: El empleado '" + empleado.getLogin()
+            System.out.println("ERROR: '" + empleado.getLogin()
                 + "' no está inscrito en '" + torneo.getNombre() + "'.");
             return false;
         }
@@ -244,34 +224,32 @@ public class GestorTorneos {
 
     /**
      * Entrega el bono de descuento al ganador de un torneo amistoso.
-     * El bono reemplaza cualquier bono previo (no acumulable).
-     *
-     * @param torneo  el torneo amistoso terminado
-     * @param ganador el cliente ganador
-     * @return true si se entregó correctamente
+     * El bono se agrega a la lista del cliente (puede tener varios de distintos torneos).
      */
     public boolean entregarBonoAmistoso(TorneoAmistoso torneo, Cliente ganador) {
         if (!torneo.yaInscrito(ganador)) {
-            System.out.println("ERROR: El cliente '" + ganador.getLogin()
+            System.out.println("ERROR: '" + ganador.getLogin()
                 + "' no estaba inscrito en el torneo.");
             return false;
         }
-        ganador.asignarBonoDescuento(torneo.getPorcentajeDescuento());
+        ganador.agregarBonoDescuento(torneo.getPorcentajeDescuento());
         System.out.println("Bono de descuento del "
             + (int)(torneo.getPorcentajeDescuento() * 100) + "% asignado a '"
-            + ganador.getLogin() + "'. Válido en su próxima compra.");
+            + ganador.getLogin() + "'. Total bonos acumulados: "
+            + ganador.getBonosDescuento().size());
         return true;
     }
 
     /**
-     * Calcula y muestra el premio en metálico del torneo competitivo.
-     * Los empleados no reciben el premio.
+     * Calcula y retorna el premio en metálico del torneo competitivo.
+     * Los empleados no reciben premio en metálico.
+     * @return monto del premio, o 0.0 si el ganador es empleado
      */
     public double calcularPremioCompetitivo(TorneoCompetitivo torneo, Usuario ganador) {
         if (ganador instanceof Empleado) {
-            System.out.println("INFO: El ganador '" + ganador.getLogin()
+            System.out.println("INFO: '" + ganador.getLogin()
                 + "' es empleado y no recibe el premio en metálico.");
-            return 0;
+            return 0.0;
         }
         torneo.calcularPremio();
         double premio = torneo.getPremioMetalico();
@@ -281,10 +259,10 @@ public class GestorTorneos {
     }
 
     // ══════════════════════════════════════════════════════════════════
-    //  CONSULTAS Y VISUALIZACIÓN
+    //  VISUALIZACIÓN
     // ══════════════════════════════════════════════════════════════════
 
-    /** Lista todos los torneos del café. */
+    /** Muestra todos los torneos registrados. */
     public void mostrarTorneos() {
         List<Torneo> torneos = cafe.getTorneos();
         if (torneos.isEmpty()) {
@@ -294,16 +272,16 @@ public class GestorTorneos {
         System.out.println("\n========== TORNEOS ==========");
         for (Torneo t : torneos) {
             System.out.println(t);
-            System.out.println("  Cupos fanáticos reservados : " + t.getCuposFanaticos()
+            System.out.println("  Cupos fanáticos  : " + t.getCuposFanaticos()
                 + " (ocupados: " + t.getCuposFanaticosOcupados() + ")");
-            System.out.println("  Cupos regulares disponibles: " + t.cuposRegularesDisponibles());
-            System.out.println("  Total disponibles          : " + t.cuposTotalesDisponibles());
-            System.out.println("  Premio                     : " + t.descripcionPremio());
+            System.out.println("  Cupos regulares  : " + t.cuposRegularesDisponibles() + " disponibles");
+            System.out.println("  Total disponibles: " + t.cuposTotalesDisponibles());
+            System.out.println("  Premio           : " + t.descripcionPremio());
         }
         System.out.println("=============================\n");
     }
 
-    /** Detalle de inscripciones de un torneo. */
+    /** Muestra las inscripciones de un torneo específico. */
     public void mostrarInscripciones(Torneo torneo) {
         System.out.println("\n--- Inscripciones: " + torneo.getNombre() + " ---");
         if (torneo.getInscripciones().isEmpty()) {
@@ -314,47 +292,23 @@ public class GestorTorneos {
             String tipo = (ins.getUsuario() instanceof Cliente) ? "Cliente" : "Empleado";
             System.out.println("  " + tipo + " | " + ins.getUsuario().getLogin()
                 + " | Cupos: " + ins.totalCupos()
-                + " (fan=" + ins.getCuposFanaticos() + ", reg=" + ins.getCuposRegulares() + ")");
+                + " (fanáticos=" + ins.getCuposFanaticos()
+                + ", regulares=" + ins.getCuposRegulares() + ")");
         }
         System.out.println();
     }
 
     // ══════════════════════════════════════════════════════════════════
-    //  MÉTODOS AUXILIARES
+    //  AUXILIAR: verificar turno
     // ══════════════════════════════════════════════════════════════════
 
     /**
-     * Determina si un empleado tiene turno el día del torneo.
-     * El turno se compara en formato "DIA" (ej. "LUNES").
-     * Si el turno es un rango "Lunes-Viernes", se verifica si el día está en ese rango.
+     * Compara el turno del empleado (día exacto, ej. "LUNES")
+     * contra el día del torneo. Insensible a mayúsculas/minúsculas.
      */
     public boolean empleadoTieneTurnoEnDia(Empleado empleado, String diaTorneo) {
         String turno = empleado.getTurnoSemana().toUpperCase().trim();
         String dia   = diaTorneo.toUpperCase().trim();
-
-        // Turno exacto: "LUNES"
-        if (turno.equals(dia)) return true;
-
-        // Turno rango: "LUNES-VIERNES"
-        if (turno.contains("-")) {
-            String[] partes = turno.split("-");
-            if (partes.length == 2) {
-                int idxInicio = indiceDia(partes[0].trim());
-                int idxFin    = indiceDia(partes[1].trim());
-                int idxDia    = indiceDia(dia);
-                if (idxInicio >= 0 && idxFin >= 0 && idxDia >= 0) {
-                    return idxDia >= idxInicio && idxDia <= idxFin;
-                }
-            }
-        }
-        return false;
-    }
-
-    private int indiceDia(String dia) {
-        String[] dias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"};
-        for (int i = 0; i < dias.length; i++) {
-            if (dias[i].equals(dia.toUpperCase())) return i;
-        }
-        return -1;
+        return turno.equals(dia);
     }
 }
