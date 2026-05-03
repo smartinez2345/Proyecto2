@@ -8,18 +8,15 @@ public class Cliente extends Usuario {
 
     private List<Juego> juegosFavoritos;
     private int puntosFidelidad;
-    // Bono de descuento ganado en torneo amistoso (no acumulable con otros descuentos)
-    // 0.0 = sin bono activo; > 0.0 = porcentaje de descuento activo (ej. 0.15 = 15%)
-    private double bonoDescuento;
+    private List<Double> bonosDescuento;
 
     public Cliente(String login, String password) {
         super(login, password);
         this.juegosFavoritos = new ArrayList<>();
         this.puntosFidelidad = 0;
-        this.bonoDescuento = 0.0;
+        this.bonosDescuento = new ArrayList<>();
     }
 
-    // ─── Juegos favoritos ─────────────────────────────────────────────
     public List<Juego> getJuegosFavoritos() { return juegosFavoritos; }
 
     public void agregarJuegoFavorito(Juego j) {
@@ -30,7 +27,6 @@ public class Cliente extends Usuario {
         return juegosFavoritos.contains(j);
     }
 
-    // ─── Puntos fidelidad ─────────────────────────────────────────────
     public int getPuntosFidelidad() { return puntosFidelidad; }
 
     public void agregarPuntos(int puntos) { this.puntosFidelidad += puntos; }
@@ -43,37 +39,28 @@ public class Cliente extends Usuario {
         return false;
     }
 
-    // ─── Bono de descuento torneo amistoso ────────────────────────────
+    public List<Double> getBonosDescuento() { return bonosDescuento; }
 
-    /** Retorna el porcentaje de bono activo (0.0 si no hay bono). */
-    public double getBonoDescuento() { return bonoDescuento; }
+    public boolean tieneBonosDescuento() { return !bonosDescuento.isEmpty(); }
 
-    /** ¿Tiene bono de descuento activo? */
-    public boolean tieneBonoDescuento() { return bonoDescuento > 0.0; }
-
-    /**
-     * Asigna un bono de descuento ganado en torneo amistoso.
-     * Reemplaza el anterior (no acumulable).
-     */
-    public void asignarBonoDescuento(double porcentaje) {
-        this.bonoDescuento = porcentaje;
+    public void agregarBonoDescuento(double porcentaje) {
+        bonosDescuento.add(porcentaje);
     }
 
-    /**
-     * Usa el bono de descuento y lo elimina (se consume al usarse).
-     * @return el porcentaje consumido, o 0.0 si no había bono
-     */
-    public double usarBonoDescuento() {
-        double bono = this.bonoDescuento;
-        this.bonoDescuento = 0.0;
-        return bono;
+    public double usarPrimerBonoDescuento() {
+        if (bonosDescuento.isEmpty()) return 0.0;
+        return bonosDescuento.remove(0);
+    }
+
+    public double usarBonoDescuento(int indice) {
+        if (indice < 0 || indice >= bonosDescuento.size()) return 0.0;
+        return bonosDescuento.remove(indice);
     }
 
     @Override
     public String toString() {
         return "Cliente[login=" + getLogin()
             + ", puntos=" + puntosFidelidad
-            + ", bono=" + (bonoDescuento > 0 ? (int)(bonoDescuento*100)+"%" : "ninguno") + "]";
+            + ", bonos=" + bonosDescuento.size() + "]";
     }
-
 }

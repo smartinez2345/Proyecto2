@@ -153,7 +153,7 @@ public class MainCliente {
 
     // ─── Bonos ────────────────────────────────────────────────────────
     private static void verMisBonos() {
-        List<Double> bonos = clienteActual.getBonosDescuento();
+        List<Double> bonos = clienteActual.getBonoDescuento();
         if (bonos.isEmpty()) {
             System.out.println("No tienes bonos de descuento acumulados.");
             return;
