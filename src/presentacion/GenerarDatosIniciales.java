@@ -96,5 +96,12 @@ public class GenerarDatosIniciales {
         }
 
         System.out.println("\n¡Generación de datos iniciales completada!");
+        
+     // Crear torneos de ejemplo
+        
+        GestorTorneos gt1 = new GestorTorneos(cafe);
+        gt1.crearTorneoAmistoso("Torneo Principiantes", "SABADO", catan, 8, 0.10);
+        gt1.crearTorneoCompetitivo("Torneo Pro", "DOMINGO", uno, 12, 15000);
     }
+    
 }

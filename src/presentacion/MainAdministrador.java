@@ -13,7 +13,7 @@ public class MainAdministrador {
     private static GestorTorneos gestorTorneos;
     private static GestorTurnos gestorTurnos;
     private static Scanner scanner = new Scanner(System.in);
-    private static final String ARCHIVO = "data/cafe.dat";
+    private static final String ARCHIVO = "data/cafe_inicial.dat";
 
     public static void main(String[] args) {
         cargarDatos();

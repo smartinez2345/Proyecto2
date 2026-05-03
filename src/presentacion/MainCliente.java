@@ -11,7 +11,7 @@ public class MainCliente {
     private static GestorUsuarios gestorUsuarios;
     private static GestorTorneos gestorTorneos;
     private static Scanner scanner = new Scanner(System.in);
-    private static final String ARCHIVO = "data/cafe.dat";
+    private static final String ARCHIVO = "data/cafe_inicial.dat";
     private static Cliente clienteActual;
 
     public static void main(String[] args) {
